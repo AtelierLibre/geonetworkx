@@ -275,9 +275,14 @@ def graph_edges_to_gdf(graph: nx.Graph) -> gpd.GeoDataFrame:
     """
     # create a list to hold our edges, then loop through each edge in the graph
     edges = []
-    for u, v, data in graph.edges(data=True):
+    for edge in graph.edges(data=True, keys=True):
         # for each edge, add key and all attributes in data dict to the edge_details
-        edge_details = {'u': u, 'v': v}
+        if graph.is_multigraph():
+            u, v, k, data = edge
+            edge_details = {'u': u, 'v': v, 'k': k}
+        else:
+            u, v, data = edge
+            edge_details = {'u': u, 'v': v}
         for attr_key in data:
             edge_details[attr_key] = data[attr_key]
         # if edge doesn't already have a geometry attribute, create one now
